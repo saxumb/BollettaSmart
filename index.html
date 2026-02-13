@@ -12,19 +12,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Ensure process.env is available for SDKs
-        window.process = window.process || {};
-        window.process.env = window.process.env || {};
+        // Polyfill per process.env richiesto dall'SDK
+        window.process = { env: { API_KEY: "" } };
+        
+        // Intercettiamo errori di caricamento dei moduli
+        window.addEventListener('error', function(e) {
+          if (e.target.tagName === 'SCRIPT') {
+            const root = document.getElementById('root');
+            if (root) root.innerHTML = `<div style="padding:40px;text-align:center;color:#e11d48;font-family:sans-serif;">
+              <h2 style="font-weight:800;">Errore di Caricamento</h2>
+              <p>Impossibile caricare i moduli necessari. Controlla la connessione o prova a ricaricare.</p>
+              <code style="display:block;margin-top:20px;font-size:12px;opacity:0.7;">${e.message || 'Modulo mancante'}</code>
+            </div>`;
+          }
+        }, true);
     </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; background-color: #f8fafc; }
         .recharts-surface:focus { outline: none !important; }
         .custom-scrollbar::-webkit-scrollbar { height: 3px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        #root:empty::before {
+            content: "Inizializzazione BollettaSmart...";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: -0.025em;
         }
 
         @keyframes steam {
@@ -51,13 +70,18 @@
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@1.40.0",
     "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/"
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
   }
 }
 </script>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
     <div id="root"></div>
+    <noscript>
+        <div style="padding: 40px; text-align: center;">
+            Devi abilitare JavaScript per usare BollettaSmart.
+        </div>
+    </noscript>
 </body>
 </html>

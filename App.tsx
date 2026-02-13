@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
-import { analyzeBill } from './geminiService.ts';
-import { BillAnalysisResult, AnalysisStatus, AnalysisStatusType } from './types.ts';
-import { Dashboard } from './components/Dashboard.tsx';
+import { analyzeBill } from './geminiService';
+import { BillAnalysisResult, AnalysisStatus, AnalysisStatusType } from './types';
+import { Dashboard } from './components/Dashboard';
 
 const PAYPAL_USERNAME = 'saxumb';
 
@@ -13,7 +12,6 @@ const App: React.FC = () => {
   const [showCoffeeModal, setShowCoffeeModal] = useState(false);
   const [hasShownExitIntent, setHasShownExitIntent] = useState(false);
 
-  // Handle exit intent to show support modal
   useEffect(() => {
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0 && status === AnalysisStatus.SUCCESS && !hasShownExitIntent) {
@@ -21,12 +19,10 @@ const App: React.FC = () => {
         setHasShownExitIntent(true);
       }
     };
-
     document.addEventListener('mouseleave', handleMouseLeave);
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, [status, hasShownExitIntent]);
 
-  // Handle file upload and start analysis
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -38,6 +34,12 @@ const App: React.FC = () => {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64String = e.target?.result as string;
+        if (!base64String) {
+          setError("Errore nella lettura del file.");
+          setStatus(AnalysisStatus.ERROR);
+          return;
+        }
+        
         const base64Data = base64String.split(',')[1];
         const mimeType = file.type;
 
@@ -45,9 +47,9 @@ const App: React.FC = () => {
           const analysis = await analyzeBill(base64Data, mimeType);
           setResult(analysis);
           setStatus(AnalysisStatus.SUCCESS);
-        } catch (err) {
-          console.error(err);
-          setError("Errore durante l'analisi. Assicurati che l'immagine sia leggibile.");
+        } catch (err: any) {
+          console.error("Gemini Error:", err);
+          setError(err.message || "Errore durante l'analisi. Riprova con un'immagine più chiara.");
           setStatus(AnalysisStatus.ERROR);
         }
       };
@@ -58,7 +60,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Reset the state to analyze a new bill
   const reset = () => {
     setStatus(AnalysisStatus.IDLE);
     setResult(null);
@@ -68,7 +69,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-12 bg-slate-50">
-      {/* Support Modal */}
       {showCoffeeModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowCoffeeModal(false)}></div>
@@ -97,7 +97,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Navigation */}
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -106,7 +105,7 @@ const App: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => setShowCoffeeModal(true)} className="text-xs font-black uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-100 flex items-center gap-2 hover:bg-amber-100 transition-colors">
-              <span>☕</span> Sostienici
+              <span className="steam-icon">☕</span> Sostienici
             </button>
             {status === AnalysisStatus.SUCCESS && (
               <button onClick={reset} className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all">
@@ -117,7 +116,6 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
         {status === AnalysisStatus.IDLE && (
           <div className="flex flex-col items-center justify-center py-20 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
