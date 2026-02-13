@@ -12,20 +12,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Polyfill per process.env richiesto dall'SDK
+        // Polyfill fondamentale per process.env richiesto dall'SDK Gemini
         window.process = { env: { API_KEY: "" } };
         
-        // Intercettiamo errori di caricamento dei moduli
-        window.addEventListener('error', function(e) {
-          if (e.target.tagName === 'SCRIPT') {
+        // Gestore errori globale per diagnosticare blocchi nel caricamento
+        window.onerror = function(msg, url, line, col, error) {
+            console.error("ERRORE CRITICO:", msg, "su", url, ":", line);
             const root = document.getElementById('root');
-            if (root) root.innerHTML = `<div style="padding:40px;text-align:center;color:#e11d48;font-family:sans-serif;">
-              <h2 style="font-weight:800;">Errore di Caricamento</h2>
-              <p>Impossibile caricare i moduli necessari. Controlla la connessione o prova a ricaricare.</p>
-              <code style="display:block;margin-top:20px;font-size:12px;opacity:0.7;">${e.message || 'Modulo mancante'}</code>
-            </div>`;
-          }
-        }, true);
+            if (root && root.innerHTML === "") {
+                root.innerHTML = `<div style="padding:40px;text-align:center;color:#e11d48;font-family:sans-serif;">
+                  <h2 style="font-weight:800;">Errore di Caricamento</h2>
+                  <p>Si è verificato un errore durante l'inizializzazione dei moduli.</p>
+                  <code style="display:block;margin-top:20px;font-size:12px;opacity:0.7;">${msg}</code>
+                </div>`;
+            }
+            return false;
+        };
     </script>
 
     <style>
@@ -36,7 +38,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         
         #root:empty::before {
-            content: "Inizializzazione BollettaSmart...";
+            content: "Caricamento BollettaSmart...";
             position: fixed;
             top: 50%;
             left: 50%;
@@ -70,14 +72,16 @@
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@1.40.0",
     "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
 </head>
 <body>
     <div id="root"></div>
+    <!-- Importante: Questo tag script carica ed esegue l'app React -->
+    <script type="module" src="./index.tsx"></script>
     <noscript>
         <div style="padding: 40px; text-align: center;">
             Devi abilitare JavaScript per usare BollettaSmart.

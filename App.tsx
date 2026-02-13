@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { analyzeBill } from './geminiService';
-import { BillAnalysisResult, AnalysisStatus, AnalysisStatusType } from './types';
-import { Dashboard } from './components/Dashboard';
+import { analyzeBill } from './geminiService.ts';
+import { BillAnalysisResult, AnalysisStatus, AnalysisStatusType } from './types.ts';
+import { Dashboard } from './components/Dashboard.tsx';
 
 const PAYPAL_USERNAME = 'saxumb';
 
