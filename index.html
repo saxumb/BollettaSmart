@@ -11,30 +11,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Babel per compilare TSX nel browser su host statici -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <script>
-        // Definisce process.env per evitare errori nei moduli che lo utilizzano (come Gemini SDK)
-        window.process = window.process || { env: {} };
+        // Definisce process.env per evitare errori nei moduli che lo utilizzano
+        window.process = { env: { API_KEY: "" } };
     </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* Rimuove il riquadro nero di focus dai grafici Recharts */
-        .recharts-surface:focus, 
-        .recharts-pie-sector:focus, 
-        .recharts-bar-rectangle:focus,
-        path:focus,
-        rect:focus {
-            outline: none !important;
-        }
+        .recharts-surface:focus { outline: none !important; }
 
-        /* Scrollbar sottile e moderna */
-        .custom-scrollbar::-webkit-scrollbar {
-            height: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .custom-scrollbar::-webkit-scrollbar { height: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #e2e8f0;
             border-radius: 10px;
@@ -44,9 +35,7 @@
             0% { transform: translateY(0) scale(1); opacity: 0.5; }
             100% { transform: translateY(-8px) scale(1.2); opacity: 0; }
         }
-        .steam-icon {
-            position: relative;
-        }
+        .steam-icon { position: relative; }
         .steam-icon::after {
             content: '♨';
             position: absolute;
@@ -73,6 +62,13 @@
 </script>
 </head>
 <body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
+    <div id="root">
+        <!-- Messaggio di caricamento iniziale -->
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    </div>
+    <!-- Caricamento esplicito tramite Babel -->
+    <script type="text/babel" data-type="module" data-presets="react,typescript" src="index.tsx"></script>
 </body>
 </html>
