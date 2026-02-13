@@ -1,10 +1,25 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { BillAnalysisResult } from "./types.ts";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getApiKey = () => {
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    return process.env.API_KEY;
+  }
+  // @ts-ignore
+  if (window.process && window.process.env && window.process.env.API_KEY) {
+    // @ts-ignore
+    return window.process.env.API_KEY;
+  }
+  return "";
+};
 
 export const analyzeBill = async (base64Image: string, mimeType: string): Promise<BillAnalysisResult> => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("API Key non configurata nell'ambiente.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const model = 'gemini-3-flash-preview';
   
   const prompt = `
