@@ -1,11 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { analyzeBill } from './geminiService';
-import { BillAnalysisResult, AnalysisStatus } from './types';
-import { Dashboard } from './components/Dashboard';
+import { analyzeBill } from './geminiService.ts';
+import { BillAnalysisResult, AnalysisStatus } from './types.ts';
+import { Dashboard } from './components/Dashboard.tsx';
 
 // === CONFIGURAZIONE PAYPAL ===
-// Inserisci qui il tuo username di PayPal.me (es: se il tuo link è paypal.me/mario, scrivi 'mario')
 const PAYPAL_USERNAME = 'saxumb';
 
 const App: React.FC = () => {
