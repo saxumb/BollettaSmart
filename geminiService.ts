@@ -1,36 +1,33 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { BillAnalysisResult } from "./types";
 
-const getApiKey = () => {
-  // @ts-ignore
-  const envKey = (typeof process !== 'undefined' && process.env?.API_KEY) || (window.process?.env?.API_KEY);
-  return envKey || "";
-};
-
+/**
+ * Analyzes a bill image or PDF using Google Gemini API.
+ * Follows strict initialization guidelines for @google/genai.
+ */
 export const analyzeBill = async (base64Image: string, mimeType: string): Promise<BillAnalysisResult> => {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    throw new Error("Chiave API mancante.");
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  // Initialize the Gemini API client using the environment variable directly as required.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  // Use gemini-3-flash-preview for basic text and structured data extraction tasks.
   const model = 'gemini-3-flash-preview';
   
   const prompt = `
     Analizza questa bolletta e fornisci un riassunto dettagliato in formato JSON.
     TUTTI I TESTI E IL SOMMARIO DEVONO ESSERE IN LINGUA ITALIANA.
     
-    Estrai:
-    1. Nome del fornitore.
-    2. Importo totale.
-    3. Valuta (es. 'EUR').
-    4. Data di scadenza (DD/MM/YYYY).
-    5. Tipo di utenza (Luce, Gas, Acqua).
-    6. Ripartizione costi (Spesa materia, trasporto, oneri, tasse).
-    7. Storico consumi.
-    8. Fasce Orarie (F1, F2, F3) per elettricità.
-    9. Riassunto testuale professionale.
-    10. Dati tecnici: unitPrice, fixedFeeMonthly, totalConsumption, consumptionUnit, billingMonths.
+    Estrai con precisione:
+    1. Nome del fornitore (provider).
+    2. Importo totale (totalAmount).
+    3. Valuta (currency, es. 'EUR').
+    4. Data di scadenza (dueDate, DD/MM/YYYY).
+    5. Tipo di utenza (utilityType: Luce, Gas, Acqua, Altro).
+    6. Ripartizione costi (costBreakdown: category, amount).
+    7. Storico consumi (consumptions: period, value, unit).
+    8. Fasce Orarie (timeSlots: slot, value, unit) se presenti (es. F1, F2, F3).
+    9. Riassunto testuale professionale in italiano (summary).
+    10. Dati tecnici: unitPrice (prezzo al kWh o smc), fixedFeeMonthly (quota fissa mensile), totalConsumption, consumptionUnit, billingMonths (numero di mesi fatturati).
   `;
 
   const response = await ai.models.generateContent({
@@ -42,6 +39,7 @@ export const analyzeBill = async (base64Image: string, mimeType: string): Promis
       ]
     },
     config: {
+      // Configure JSON response mode with a structured schema.
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -94,14 +92,21 @@ export const analyzeBill = async (base64Image: string, mimeType: string): Promis
           consumptionUnit: { type: Type.STRING },
           billingMonths: { type: Type.NUMBER }
         },
-        required: ["provider", "totalAmount", "dueDate", "utilityType"]
+        required: ["provider", "totalAmount", "dueDate", "utilityType", "summary"]
       }
     }
   });
 
-  if (!response.text) {
-    throw new Error("Impossibile analizzare il documento.");
+  // Extract the text output directly from the response object.
+  const resultText = response.text;
+  if (!resultText) {
+    throw new Error("L'analisi del documento non ha restituito risultati validi.");
   }
 
-  return JSON.parse(response.text) as BillAnalysisResult;
+  try {
+    return JSON.parse(resultText) as BillAnalysisResult;
+  } catch (parseError) {
+    console.error("Failed to parse Gemini JSON output:", resultText);
+    throw new Error("Errore nel formato dei dati ricevuti dall'intelligenza artificiale.");
+  }
 };

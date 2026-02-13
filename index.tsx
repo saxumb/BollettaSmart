@@ -1,15 +1,20 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import App from './App.tsx';
 
 const container = document.getElementById('root');
 if (container) {
-  const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+  try {
+    const root = createRoot(container);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+  } catch (error) {
+    console.error("Failed to render React app:", error);
+    container.innerHTML = `<div style="padding: 20px; color: red;">Si è verificato un errore durante il caricamento dell'app. Controlla la console per i dettagli.</div>`;
+  }
 }
 
 // Registrazione Service Worker per PWA (solo HTTPS)
