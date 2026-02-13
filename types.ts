@@ -1,4 +1,3 @@
-
 export interface BillCostBreakdown {
   category: string;
   amount: number;
@@ -11,7 +10,7 @@ export interface ConsumptionDetail {
 }
 
 export interface TimeSlotDetail {
-  slot: string; // e.g., "F1", "F2", "F3"
+  slot: string;
   value: number;
   unit: string;
 }
@@ -25,19 +24,20 @@ export interface BillAnalysisResult {
   utilityType: 'Luce' | 'Gas' | 'Acqua' | 'Altro';
   costBreakdown: BillCostBreakdown[];
   consumptions: ConsumptionDetail[];
-  timeSlots?: TimeSlotDetail[]; // New: Consumption breakdown by time slots
+  timeSlots?: TimeSlotDetail[];
   summary: string;
-  // New fields for simulation
-  unitPrice?: number; // e.g., price per kWh or Smc
-  fixedFeeMonthly?: number; // monthly fixed cost
-  totalConsumption?: number; // total units consumed in this bill
-  consumptionUnit?: string; // kWh, Smc, etc.
-  billingMonths?: number; // number of months covered by the bill
+  unitPrice?: number;
+  fixedFeeMonthly?: number;
+  totalConsumption?: number;
+  consumptionUnit?: string;
+  billingMonths?: number;
 }
 
-export enum AnalysisStatus {
-  IDLE = 'IDLE',
-  LOADING = 'LOADING',
-  SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR'
-}
+export const AnalysisStatus = {
+  IDLE: 'IDLE',
+  LOADING: 'LOADING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR'
+} as const;
+
+export type AnalysisStatusType = typeof AnalysisStatus[keyof typeof AnalysisStatus];

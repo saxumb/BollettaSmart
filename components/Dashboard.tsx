@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from 'recharts';
-import { BillAnalysisResult } from '../types.ts';
+import { BillAnalysisResult } from '../types';
 
 interface DashboardProps {
   data: BillAnalysisResult;
@@ -13,9 +12,9 @@ interface DashboardProps {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 const SLOT_COLORS: Record<string, string> = {
-  'F1': '#3b82f6', // Blu - Picco
-  'F2': '#f59e0b', // Ambra - Intermedia
-  'F3': '#10b981', // Smeraldo - Fuori picco
+  'F1': '#3b82f6',
+  'F2': '#f59e0b',
+  'F3': '#10b981',
 };
 
 const SLOT_HOURS: Record<string, string> = {
@@ -32,8 +31,6 @@ const getValidCurrencyCode = (code: string | undefined): string => {
 export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
   const isLuceWithSlots = data.utilityType === 'Luce' && data.timeSlots && data.timeSlots.length > 0;
   const currencyCode = getValidCurrencyCode(data.currency);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScroll, setCanScroll] = useState(false);
   
   const [priceMode, setPriceMode] = useState<'single' | 'slots' | 'variable'>(isLuceWithSlots ? 'slots' : 'single');
   const [simUnitPrice, setSimUnitPrice] = useState<number>(data.unitPrice || 0.15);
@@ -43,19 +40,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
   const [marketIndex, setMarketIndex] = useState<number>(0.12);
   const [spread, setSpread] = useState<number>(0.02);
   
-  useEffect(() => {
-    const checkScroll = () => {
-      if (scrollContainerRef.current) {
-        const { scrollWidth, clientWidth } = scrollContainerRef.current;
-        setCanScroll(scrollWidth > clientWidth);
-      }
-    };
-
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, [isLuceWithSlots]);
-
   useEffect(() => {
     if (data.unitPrice) {
       setSimUnitPrice(data.unitPrice);
@@ -112,7 +96,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
           <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">{data.provider}</p>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h2 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter mb-4">
+              <h2 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter mb-4">
                 {data.totalAmount.toLocaleString('it-IT', { style: 'currency', currency: currencyCode })}
               </h2>
               <div className="flex flex-wrap gap-x-8 gap-y-3">
@@ -138,7 +122,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
         <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Distribuzione Consumi</h3>
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fasce Orarie ARERA</span>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fasce Orarie</span>
           </div>
           <div className="space-y-8">
             <div className="h-6 w-full bg-slate-100 rounded-full flex overflow-hidden shadow-inner">
@@ -161,8 +145,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
                     <span className="text-2xl font-black text-slate-900">{((slot.value / totalSlotConsumption) * 100).toFixed(1)}%</span>
                   </div>
                   <div className="mb-4">
-                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Periodo</p>
-                     <p className="text-[11px] leading-tight text-slate-600 font-medium">{SLOT_HOURS[slot.slot] || 'Orari non disponibili'}</p>
+                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Dettaglio Orari</p>
+                     <p className="text-[11px] leading-tight text-slate-600 font-medium">{SLOT_HOURS[slot.slot] || 'N/D'}</p>
                   </div>
                   <div className="mt-auto pt-3 border-t border-slate-200/50">
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Valore</p>
@@ -180,11 +164,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
             <div>
-              <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Simulatore di Risparmio</h3>
-              <p className="text-slate-500 mt-1 font-medium">Modifica le tariffe per scoprire quanto potresti risparmiare.</p>
+              <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Simulator di Risparmio</h3>
+              <p className="text-slate-500 mt-1 font-medium">Confronta la tua bolletta con altre tariffe.</p>
             </div>
             <div className={`px-12 py-6 rounded-3xl font-black text-center border-2 shadow-sm transition-all duration-500 ${savings >= 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-700 scale-105' : 'bg-rose-50 border-rose-200 text-rose-700'}`}>
-              <p className="text-[10px] uppercase tracking-[0.3em] opacity-60 mb-1">Saldo Stimato (IVA 10%)</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] opacity-60 mb-1">Risparmio Stimato</p>
               <p className="text-5xl tracking-tighter">{savings.toLocaleString('it-IT', { style: 'currency', currency: currencyCode })}</p>
             </div>
           </div>
@@ -194,7 +178,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
               <div className="space-y-10">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between px-1">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Tipo Offerta</label>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Modalità Prezzo</label>
                   </div>
                   <div className="flex p-1.5 bg-slate-100 rounded-2xl overflow-x-auto custom-scrollbar">
                     <button onClick={() => setPriceMode('single')} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${priceMode === 'single' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500'}`}>Monoraria</button>
@@ -203,7 +187,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Prezzo Energia (€/{data.consumptionUnit})</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Prezzo Materia (€/{data.consumptionUnit})</label>
                   {priceMode === 'slots' ? (
                     <div className="grid grid-cols-3 gap-4">
                       {data.timeSlots!.map((slot) => (
@@ -232,7 +216,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
                 <div><p className="text-[9px] font-black text-slate-400 uppercase mb-1">Costo Materia</p><p className="text-xl font-bold">€ {simMateriaVar.toFixed(2)}</p></div>
                 <div className="border-l border-slate-200 pl-8"><p className="text-[9px] font-black text-slate-400 uppercase mb-1">Quote Fisse</p><p className="text-xl font-bold">€ {(simFixedFee * billingMonths).toFixed(2)}</p></div>
               </div>
-              <div className="text-right"><p className="text-[9px] font-black text-slate-400 uppercase mb-1">Nuova Bolletta Stimata</p><p className="text-4xl font-black text-blue-600 tracking-tighter">€ {simulatedTotal.toFixed(2)}</p></div>
+              <div className="text-right"><p className="text-[9px] font-black text-slate-400 uppercase mb-1">Nuovo Totale Stimato (IVA incl.)</p><p className="text-4xl font-black text-blue-600 tracking-tighter">€ {simulatedTotal.toFixed(2)}</p></div>
             </div>
           </div>
         </div>
@@ -240,7 +224,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 h-[480px] flex flex-col">
-          <h3 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full"></div>Spaccato Costi</h3>
+          <h3 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-3">Suddivisione Costi</h3>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart style={{ outline: 'none' }}>
               <Pie data={data.costBreakdown} cx="50%" cy="42%" innerRadius={70} outerRadius={100} paddingAngle={10} dataKey="amount" nameKey="category" stroke="none">
@@ -252,7 +236,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
           </ResponsiveContainer>
         </div>
         <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 h-[480px] flex flex-col">
-          <h3 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-3"><div className="w-2 h-2 bg-indigo-600 rounded-full"></div>Trend Consumi</h3>
+          <h3 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-3">Storico Consumi</h3>
           {data.consumptions?.length ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.consumptions}>
@@ -263,7 +247,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
                 <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
-          ) : <div className="flex-1 flex items-center justify-center text-slate-300 font-bold uppercase tracking-widest">Nessun dato</div>}
+          ) : <div className="flex-1 flex items-center justify-center text-slate-300 font-bold uppercase tracking-widest">Dati non disponibili</div>}
         </div>
       </div>
 
@@ -272,14 +256,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ data, paypalUser }) => {
            <span className="text-4xl steam-icon">☕</span>
         </div>
         <div className="text-center lg:text-left flex-1">
-          <h4 className="text-xl font-black text-blue-900 uppercase tracking-tight mb-2">Ti abbiamo fatto risparmiare?</h4>
-          <p className="text-blue-800/70 font-medium">BollettaSmart è gratuito. Se l'analisi ti è stata utile, supportaci con un caffè!</p>
+          <h4 className="text-xl font-black text-blue-900 uppercase tracking-tight mb-2">Ti piace BollettaSmart?</h4>
+          <p className="text-blue-800/70 font-medium">L'app è gratuita. Se ti abbiamo aiutato, considera di offrirci un caffè!</p>
         </div>
         <div className="flex flex-wrap justify-center gap-3">
           {supportAmounts.map(amount => (
             <a key={amount} href={`https://www.paypal.com/paypalme/${paypalUser}/${amount}`} target="_blank" rel="noopener noreferrer" className="px-6 py-4 bg-white border-2 border-blue-100 text-blue-600 rounded-2xl font-black text-sm uppercase hover:bg-blue-600 hover:text-white transition-all min-w-[100px] text-center">€ {amount.toFixed(2)}</a>
           ))}
-          <a href={`https://www.paypal.com/paypalme/${paypalUser}`} target="_blank" rel="noopener noreferrer" className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase shadow-xl hover:bg-blue-700 hover:scale-105 transition-all">Altro</a>
+          <a href={`https://www.paypal.com/paypalme/${paypalUser}`} target="_blank" rel="noopener noreferrer" className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase shadow-xl hover:bg-blue-700 hover:scale-105 transition-all">Sostienici</a>
         </div>
       </div>
     </div>

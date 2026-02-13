@@ -12,10 +12,10 @@ if (container) {
   );
 }
 
-// Registrazione Service Worker per PWA
-if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+// Registrazione Service Worker per PWA (solo HTTPS)
+if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-      .catch(err => console.log('PWA: Service Worker registration failed:', err));
+      .catch(err => console.warn('PWA: Service Worker non registrato', err));
   });
 }

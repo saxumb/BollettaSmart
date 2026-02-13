@@ -1,22 +1,16 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { BillAnalysisResult } from "./types.ts";
+import { BillAnalysisResult } from "./types";
 
 const getApiKey = () => {
-  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY;
-  }
   // @ts-ignore
-  if (window.process && window.process.env && window.process.env.API_KEY) {
-    // @ts-ignore
-    return window.process.env.API_KEY;
-  }
-  return "";
+  const envKey = (typeof process !== 'undefined' && process.env?.API_KEY) || (window.process?.env?.API_KEY);
+  return envKey || "";
 };
 
 export const analyzeBill = async (base64Image: string, mimeType: string): Promise<BillAnalysisResult> => {
   const apiKey = getApiKey();
   if (!apiKey) {
-    throw new Error("API Key non configurata nell'ambiente.");
+    throw new Error("Chiave API mancante.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -26,29 +20,21 @@ export const analyzeBill = async (base64Image: string, mimeType: string): Promis
     Analizza questa bolletta e fornisci un riassunto dettagliato in formato JSON.
     TUTTI I TESTI E IL SOMMARIO DEVONO ESSERE IN LINGUA ITALIANA.
     
-    Estrai con precisione:
+    Estrai:
     1. Nome del fornitore.
-    2. Importo totale da pagare.
-    3. Valuta: UTILIZZA SEMPRE IL CODICE ISO 4217 (es. 'EUR' invece di '€').
-    4. Data di scadenza (formato DD/MM/YYYY).
+    2. Importo totale.
+    3. Valuta (es. 'EUR').
+    4. Data di scadenza (DD/MM/YYYY).
     5. Tipo di utenza (Luce, Gas, Acqua).
-    6. Ripartizione dei costi (Spesa materia, trasporto, oneri, tasse) - TRADUCI IN ITALIANO.
-    7. Storico consumi se presente.
-    8. Consumo per Fasce Orarie (F1, F2, F3) se si tratta di una bolletta elettrica (Luce).
-    9. Un breve riassunto testuale professionale in ITALIANO (summary).
-    10. DATI PER SIMULATORE:
-       - unitPrice: il costo unitario della materia energia/gas.
-       - fixedFeeMonthly: la quota fissa mensile.
-       - totalConsumption: il consumo totale fatturato.
-       - consumptionUnit: l'unità di misura (kWh, Smc).
-       - billingMonths: il numero di mesi a cui si riferisce la bolletta.
-    
-    IMPORTANTE: Tutte le date nel JSON devono essere nel formato italiano DD/MM/YYYY.
-    NON estrarre il codice utenza, POD o PDR.
+    6. Ripartizione costi (Spesa materia, trasporto, oneri, tasse).
+    7. Storico consumi.
+    8. Fasce Orarie (F1, F2, F3) per elettricità.
+    9. Riassunto testuale professionale.
+    10. Dati tecnici: unitPrice, fixedFeeMonthly, totalConsumption, consumptionUnit, billingMonths.
   `;
 
   const response = await ai.models.generateContent({
-    model: model,
+    model,
     contents: {
       parts: [
         { inlineData: { data: base64Image, mimeType: mimeType } },
