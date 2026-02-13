@@ -1,0 +1,13 @@
+
+{
+  "name": "bollettasmart",
+  "version": "1.0.0",
+  "description": "App per l'analisi intelligente delle bollette",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Apri index.html nel browser'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
