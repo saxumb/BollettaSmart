@@ -12,73 +12,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Polyfill essenziale per l'SDK Gemini
+        // Polyfill fondamentale per l'SDK Gemini
         window.process = { env: { API_KEY: "" } };
         
-        // Sistema di diagnostica avanzato per errori di caricamento moduli
+        // Diagnostica errori di caricamento
         window.addEventListener('error', function(event) {
             const root = document.getElementById('root');
-            // Interveniamo solo se la pagina è vuota o bloccata
-            if (root && (root.innerHTML === "" || root.innerHTML.includes('Avvio'))) {
-                let errorMsg = event.message || "Errore sconosciuto nel modulo";
-                let file = event.filename ? event.filename.split('/').pop() : "index.tsx o dipendenze";
-                
+            if (root && (root.innerHTML === "" || root.innerHTML.includes('Inizializzazione'))) {
+                let msg = event.message || "Errore nel caricamento dei moduli";
                 root.innerHTML = `
-                    <div style="padding:40px;text-align:center;font-family:sans-serif;color:#e11d48;background:#f8fafc;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-                        <div style="background:white;padding:30px;border-radius:24px;shadow:0 10px 25px -5px rgba(0,0,0,0.1);max-width:400px;border:1px solid #fecdd3;">
-                            <h2 style="font-weight:800;margin-bottom:10px;font-size:20px;">Errore di Caricamento</h2>
-                            <p style="color:#64748b;font-size:14px;margin-bottom:20px;">L'app non è riuscita a caricare i componenti necessari. Questo succede solitamente per problemi di connessione o cache del browser.</p>
-                            <div style="text-align:left;background:#fff1f2;padding:12px;border-radius:12px;font-size:11px;border:1px solid #fecdd3;overflow:auto;margin-bottom:20px;font-family:monospace;">
-                                <strong>Dettaglio:</strong> ${errorMsg}<br>
-                                <strong>File:</strong> ${file}
+                    <div style="padding:40px;text-align:center;font-family:sans-serif;background:#f8fafc;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+                        <div style="background:white;padding:30px;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.05);max-width:400px;border:1px solid #fecdd3;">
+                            <h2 style="font-weight:800;color:#e11d48;margin-bottom:10px;">Errore di Caricamento</h2>
+                            <p style="color:#64748b;font-size:14px;margin-bottom:20px;">L'app non si è avviata correttamente. Dettaglio tecnico:</p>
+                            <div style="text-align:left;background:#fff1f2;padding:12px;border-radius:12px;font-size:11px;border:1px solid #fecdd3;overflow:auto;margin-bottom:20px;font-family:monospace;color:#be123c;">
+                                ${msg}
                             </div>
-                            <button onclick="clearCacheAndReload()" style="width:100%;padding:14px;background:#2563eb;color:white;border:none;border-radius:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 6px -1px rgba(37,99,235,0.2);">Ricarica Applicazione</button>
+                            <button onclick="location.reload(true)" style="width:100%;padding:14px;background:#2563eb;color:white;border:none;border-radius:14px;font-weight:700;cursor:pointer;">Ricarica Pagina</button>
                         </div>
                     </div>
                 `;
             }
         }, true);
-
-        function clearCacheAndReload() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    for(let registration of registrations) registration.unregister();
-                });
-            }
-            window.location.reload(true);
-        }
     </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
         #root:empty::before {
-            content: "Inizializzazione...";
+            content: "Avvio applicazione...";
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-weight: 700;
             color: #94a3b8;
-            font-size: 13px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        @keyframes steam {
-            0% { transform: translateY(0) scale(1); opacity: 0.5; }
-            100% { transform: translateY(-8px) scale(1.2); opacity: 0; }
-        }
-        .steam-icon { position: relative; }
-        .steam-icon::after {
-            content: '♨';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
             font-size: 14px;
-            animation: steam 2s infinite;
-            color: #d97706;
         }
     </style>
 
