@@ -12,41 +12,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Polyfill fondamentale per process.env richiesto dall'SDK Gemini
+        // Polyfill per l'SDK Gemini
         window.process = { env: { API_KEY: "" } };
         
-        // Gestore errori globale per diagnosticare blocchi nel caricamento
-        window.onerror = function(msg, url, line, col, error) {
-            console.error("ERRORE CRITICO:", msg, "su", url, ":", line);
+        // Se c'è un errore di caricamento dei moduli, lo mostriamo all'utente
+        window.addEventListener('error', function(e) {
             const root = document.getElementById('root');
-            if (root && (root.innerHTML === "" || root.innerHTML.includes('Caricamento'))) {
-                root.innerHTML = `<div style="padding:40px;text-align:center;color:#e11d48;font-family:sans-serif;">
-                  <h2 style="font-weight:800;margin-bottom:10px;">Errore di Avvio</h2>
-                  <p style="color:#64748b;margin-bottom:20px;">Si è verificato un errore nel caricamento dei componenti.</p>
-                  <pre style="background:#fff1f2;padding:15px;border-radius:8px;font-size:11px;text-align:left;overflow:auto;max-width:100%;border:1px solid #fecdd3;">${msg}\n${error ? error.stack : ''}</pre>
-                  <button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;background:#e11d48;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">Ricarica Pagina</button>
-                </div>`;
+            if (root && (root.innerHTML === "" || root.innerHTML.includes('Inizializzazione'))) {
+                root.innerHTML = `
+                    <div style="padding:40px;text-align:center;font-family:sans-serif;color:#e11d48;">
+                        <h2 style="font-weight:800;margin-bottom:10px;">Errore di Caricamento</h2>
+                        <p style="color:#64748b;font-size:14px;margin-bottom:20px;">L'applicazione non risponde. Dettagli tecnici:</p>
+                        <div style="text-align:left;background:#fff1f2;padding:15px;border-radius:12px;font-size:11px;border:1px solid #fecdd3;overflow:auto;">
+                            ${e.message}<br>File: ${e.filename}<br>Linea: ${e.lineno}
+                        </div>
+                        <button onclick="location.reload()" style="margin-top:20px;padding:12px 24px;background:#2563eb;color:white;border:none;border-radius:12px;font-weight:700;">Ricarica App</button>
+                    </div>
+                `;
             }
-            return false;
-        };
+        }, true);
     </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; background-color: #f8fafc; }
-        .recharts-surface:focus { outline: none !important; }
-        .custom-scrollbar::-webkit-scrollbar { height: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
         
         #root:empty::before {
-            content: "Inizializzazione BollettaSmart...";
+            content: "Avvio BollettaSmart...";
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-weight: 700;
             color: #64748b;
-            letter-spacing: -0.025em;
+            font-size: 14px;
+            letter-spacing: -0.01em;
         }
 
         @keyframes steam {
@@ -65,7 +64,8 @@
             color: #d97706;
         }
     </style>
-<script type="importmap">
+
+    <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@19.0.0",
@@ -73,8 +73,8 @@
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "@google/genai": "https://esm.sh/@google/genai@1.40.0",
     "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
@@ -82,10 +82,5 @@
 <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
-    <noscript>
-        <div style="padding: 40px; text-align: center;">
-            Devi abilitare JavaScript per usare BollettaSmart.
-        </div>
-    </noscript>
 </body>
 </html>
