@@ -13,7 +13,12 @@ if (container) {
       </React.StrictMode>
     );
   } catch (error) {
-    console.error("React Init Error:", error);
-    container.innerHTML = `<div style="padding:40px;text-align:center;"><h2>Errore Fatale</h2><p>${error}</p></div>`;
+    console.error("React Mounting Error:", error);
+    container.innerHTML = `
+      <div style="padding:40px;text-align:center;font-family:sans-serif;">
+        <h2 style="color:#e11d48;">Errore di inizializzazione</h2>
+        <p style="color:#64748b;">${error instanceof Error ? error.message : "Impossibile avviare React."}</p>
+      </div>
+    `;
   }
 }

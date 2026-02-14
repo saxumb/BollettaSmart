@@ -12,40 +12,57 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Polyfill per l'SDK Gemini
+        // Polyfill essenziale per l'SDK Gemini
         window.process = { env: { API_KEY: "" } };
         
-        // Se c'è un errore di caricamento dei moduli, lo mostriamo all'utente
-        window.addEventListener('error', function(e) {
+        // Sistema di diagnostica avanzato per errori di caricamento moduli
+        window.addEventListener('error', function(event) {
             const root = document.getElementById('root');
-            if (root && (root.innerHTML === "" || root.innerHTML.includes('Inizializzazione'))) {
+            // Interveniamo solo se la pagina è vuota o bloccata
+            if (root && (root.innerHTML === "" || root.innerHTML.includes('Avvio'))) {
+                let errorMsg = event.message || "Errore sconosciuto nel modulo";
+                let file = event.filename ? event.filename.split('/').pop() : "index.tsx o dipendenze";
+                
                 root.innerHTML = `
-                    <div style="padding:40px;text-align:center;font-family:sans-serif;color:#e11d48;">
-                        <h2 style="font-weight:800;margin-bottom:10px;">Errore di Caricamento</h2>
-                        <p style="color:#64748b;font-size:14px;margin-bottom:20px;">L'applicazione non risponde. Dettagli tecnici:</p>
-                        <div style="text-align:left;background:#fff1f2;padding:15px;border-radius:12px;font-size:11px;border:1px solid #fecdd3;overflow:auto;">
-                            ${e.message}<br>File: ${e.filename}<br>Linea: ${e.lineno}
+                    <div style="padding:40px;text-align:center;font-family:sans-serif;color:#e11d48;background:#f8fafc;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+                        <div style="background:white;padding:30px;border-radius:24px;shadow:0 10px 25px -5px rgba(0,0,0,0.1);max-width:400px;border:1px solid #fecdd3;">
+                            <h2 style="font-weight:800;margin-bottom:10px;font-size:20px;">Errore di Caricamento</h2>
+                            <p style="color:#64748b;font-size:14px;margin-bottom:20px;">L'app non è riuscita a caricare i componenti necessari. Questo succede solitamente per problemi di connessione o cache del browser.</p>
+                            <div style="text-align:left;background:#fff1f2;padding:12px;border-radius:12px;font-size:11px;border:1px solid #fecdd3;overflow:auto;margin-bottom:20px;font-family:monospace;">
+                                <strong>Dettaglio:</strong> ${errorMsg}<br>
+                                <strong>File:</strong> ${file}
+                            </div>
+                            <button onclick="clearCacheAndReload()" style="width:100%;padding:14px;background:#2563eb;color:white;border:none;border-radius:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 6px -1px rgba(37,99,235,0.2);">Ricarica Applicazione</button>
                         </div>
-                        <button onclick="location.reload()" style="margin-top:20px;padding:12px 24px;background:#2563eb;color:white;border:none;border-radius:12px;font-weight:700;">Ricarica App</button>
                     </div>
                 `;
             }
         }, true);
+
+        function clearCacheAndReload() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for(let registration of registrations) registration.unregister();
+                });
+            }
+            window.location.reload(true);
+        }
     </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
         
         #root:empty::before {
-            content: "Avvio BollettaSmart...";
+            content: "Inizializzazione...";
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-weight: 700;
-            color: #64748b;
-            font-size: 14px;
-            letter-spacing: -0.01em;
+            color: #94a3b8;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         @keyframes steam {
