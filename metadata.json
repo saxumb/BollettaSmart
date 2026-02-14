@@ -1,0 +1,7 @@
+{
+  "name": "BollettaSmart",
+  "description": "Scansiona le tue bollette con la fotocamera per analizzare costi e consumi istantaneamente. Risparmia tempo e denaro con l'IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
